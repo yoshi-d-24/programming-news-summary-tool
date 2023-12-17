@@ -52,4 +52,4 @@ class CodezineNewsSpider(scrapy.Spider):
             date,
             content,
             tag_list)
-        return item
+        yield item

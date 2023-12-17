@@ -1,5 +1,4 @@
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 export const addNewsTableResource = (scope: Construct): dynamodb.TableV2 => {
