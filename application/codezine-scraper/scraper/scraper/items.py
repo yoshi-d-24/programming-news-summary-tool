@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 @dataclass
 class ScraperItem():
+    id: int
     title: str
     link: str
     date: str

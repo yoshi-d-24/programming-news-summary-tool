@@ -19,6 +19,7 @@ class CodezineNewsSpider(scrapy.Spider):
             title = item_content.xpath('.//p[has-class("c-articleindex_item_heading")]/a/text()').get()
             link = item_content.xpath('.//p[has-class("c-articleindex_item_heading")]/a/@href').get()
             date = item_content.xpath('.//p[has-class("c-featureindex_item_date")]/time/text()').get()
+            id = int(link.replace('/article/detail/', ''))
 
             if search_date != date:
                 continue
@@ -29,7 +30,7 @@ class CodezineNewsSpider(scrapy.Spider):
 
             url = response.urljoin(link)
             # リンク先を訪れるためのRequestを作成し、parse_linkメソッドで処理する
-            yield scrapy.Request(url=url, callback=self.parse_link, meta={'title': title, 'url': url, 'date': date, 'tag_list': tag_list})
+            yield scrapy.Request(url=url, callback=self.parse_link, meta={'id': id, 'title': title, 'url': url, 'date': date, 'tag_list': tag_list})
 
     def parse_link(self, response):
         # リンク先のページの内容を取得
@@ -38,16 +39,17 @@ class CodezineNewsSpider(scrapy.Spider):
         # パラグラフの文字列を結合
         content = ' '.join(paragraphs)
 
-        # metaに保存していたtitleとdateを取得
+        id = response.meta['id']
         title = response.meta['title']
         url = response.meta['url']
         date = response.meta['date']
         tag_list = response.meta['tag_list']
 
         item = ScraperItem(
+            id,
             title,
             url,
             date,
             content,
             tag_list)
-        yield item
+        return item
