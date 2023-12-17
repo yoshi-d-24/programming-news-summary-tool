@@ -1,0 +1,1 @@
+CODEZINE_DOMAIN = 'codezine.jp'
