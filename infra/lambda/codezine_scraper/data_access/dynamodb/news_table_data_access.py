@@ -1,10 +1,9 @@
 import boto3
-import logging
+from aws_lambda_powertools import Logger
 from datetime import datetime, timedelta
-from model.news_data import NewsData, Code
+from model.news_data import NewsData
 
-LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.INFO)
+logger = Logger(child=True)
 
 TABLE_NAME = 'PNST-NEWS'
 
@@ -36,7 +35,6 @@ class NewsTableDataAccess:
                             'ttl': ttl ,
                         }
                     )
-            LOGGER.info("Completed registration")
         except Exception as error:
-            LOGGER.error(error)
+            logger.error(error)
             raise error
