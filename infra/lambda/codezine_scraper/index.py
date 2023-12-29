@@ -8,12 +8,16 @@ logger = Logger()
 def handler(event, context):
     run(event['search_date'])
 
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Content-Type": "application/json;charset=UTF-8"
-        },
-        "body": json.dumps({
-            "result ": 'success'
-        })
-    }
+    try:
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
+            'body': json.dumps({
+                'result': 'success'
+            })
+        }
+    except Exception as error:
+            logger.error(error)
+            raise error

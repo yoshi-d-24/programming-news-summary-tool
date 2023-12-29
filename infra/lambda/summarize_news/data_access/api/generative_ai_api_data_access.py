@@ -1,6 +1,5 @@
 import requests
 import json
-import codecs
 
 
 class GenerateAiApiDataAccess:
@@ -39,7 +38,7 @@ class GenerateAiApiDataAccess:
         for candidate in res_dict['candidates']:
             parts = candidate['content']['parts']
 
-            parts_text_list = [];
+            parts_text_list = []
 
             for part in parts:
                 parts_text_list.append(part['text'])

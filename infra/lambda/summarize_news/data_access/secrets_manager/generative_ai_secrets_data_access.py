@@ -5,7 +5,6 @@
 
 import boto3
 import json
-from botocore.exceptions import ClientError
 
 session = boto3.session.Session()
 
@@ -16,16 +15,11 @@ class GenerateAiSecretsDataAccess:
         )
 
     def get_secret(self, key: str):
-        secret_name = "prod/PNST/GenerativeAI"
+        secret_name: str = 'prod/PNST/GenerativeAI'
 
-        try:
-            get_secret_value_response = self.client.get_secret_value(
-                SecretId=secret_name
-            )
-        except ClientError as e:
-            raise e
+        get_secret_value_response = self.client.get_secret_value(
+            SecretId=secret_name)
 
         secrets = json.loads(get_secret_value_response['SecretString'])
 
-        # TODO: check dict has key
         return secrets[key]
