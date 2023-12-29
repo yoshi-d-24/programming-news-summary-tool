@@ -14,4 +14,4 @@ class ArticleParser:
             content_paragraph_list = content.find_all('p')
             paragraph_list.append('\n\n'.join(content_paragraph.get_text(strip=True) for content_paragraph in content_paragraph_list))
 
-        return  '\n\n'.join(paragraph for paragraph in paragraph_list).lstrip('Tweet  ')
+        return '\n\n'.join(paragraph for paragraph in paragraph_list).lstrip('Tweet  ')

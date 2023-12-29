@@ -19,11 +19,10 @@ export const addCodezineScraperFunctionResource = (scope: Construct): lambdaPyth
                     new iam.PolicyStatement({
                         effect: iam.Effect.ALLOW,
                         actions: [
-                            'dynamodb:PutItem',
-                            'dynamodb:BatchWriteItem',
+                            's3:PutObject',
                         ],
                         resources: [
-                            cdk.Fn.importValue('PNST-newsTableArn'),
+                            cdk.Fn.importValue('PNST-bucketArn'),
                         ],
                     }),
                 ]
