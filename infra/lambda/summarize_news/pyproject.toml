@@ -1,16 +1,15 @@
 [tool.poetry]
-name = "summary-news"
+name = "summarize-news"
 version = "0.1.0"
 description = ""
-authors = ["yoshi-d-24"]
+authors = ["Tomohiro Yoshida <rollwithit0117@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-google-generativeai = "^0.3.1"
-ipython = "^8.18.1"
-boto3 = "^1.34.2"
-
+aws-lambda-powertools = "^2.30.2"
+boto3 = "^1.34.10"
+requests = "^2.31.0"
 
 [build-system]
 requires = ["poetry-core"]
