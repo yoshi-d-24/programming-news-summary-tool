@@ -6,7 +6,7 @@ logger = Logger()
 
 @logger.inject_lambda_context(log_event=True)
 def handler(event, context):
-    label: str = event['label']
+    tag_set: set[str] = event['tagSet']
     summary: str = run(event['content'])
 
     try:
