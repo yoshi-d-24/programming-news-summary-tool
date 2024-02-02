@@ -1,7 +1,9 @@
 import boto3
-from model.news_data import NewsData
+from model.news_data import Code, NewsData
 from model.summary_data import SummaryData
 import json
+from enum.code import Code
+
 
 BUCKET_NAME = 'pnst-bucket'
 
@@ -11,9 +13,9 @@ class PnstBucketDataAccess:
     def __init__(self):
         pass
 
-    def get_news(self, search_date: str):
+    def get_news(self, code: Code, search_date: str):
 
-        key = 'news/' + search_date + '/codezine.json'
+        key = 'news/' + search_date + f'/{code.value}.json'
 
         res = s3.get_object(
             Bucket=BUCKET_NAME,
@@ -39,10 +41,14 @@ class PnstBucketDataAccess:
             
         return ret
 
-    def put_summary(self, search_date: str, data_list: list[SummaryData]):
+    def exist_summary(self, code: Code, search_date: str) -> bool:
+        result = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix='summary/' + search_date + f'/{code.value}.json')
+        result.KeyCount > 0
+
+    def put_summary(self, code: Code, search_date: str, data_list: list[SummaryData]):
 
             joined = ','.join(list(map(lambda data: data.to_json(indent=0, ensure_ascii=False), data_list)))
-            key = 'summary/' + search_date + '/codezine.json'
+            key = 'summary/' + search_date + f'/{code.value}.json'
             json_string = '{"summary":[' + joined + ']}'
 
             s3.put_object(

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from dataclasses_json import LetterCase, dataclass_json
-from enum import Enum
-
+from enum.code import Code
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class SummaryData:
+    code: Code
     id: int
     title: str
     uri: str

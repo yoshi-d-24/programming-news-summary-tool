@@ -1,5 +1,6 @@
 import boto3
-from model.summary_data import SummaryData
+from enum.code import Code
+from model.submmary_data import SummaryData
 import json
 
 BUCKET_NAME = 'pnst-bucket'
@@ -10,9 +11,9 @@ class PnstBucketDataAccess:
     def __init__(self):
         pass
 
-    def get_summary(self, search_date: str):
+    def get_summary(self, code: Code, search_date: str):
 
-        key = 'summary/' + search_date + '/codezine.json'
+        key = 'summary/' + search_date + f'/{code.value}.json'
 
         res = s3.get_object(
             Bucket=BUCKET_NAME,

@@ -1,42 +1,73 @@
 from data_access.api.generative_ai_api_data_access import GenerateAiApiDataAccess
 from data_access.secrets_manager.generative_ai_secrets_data_access import GenerateAiSecretsDataAccess
 from data_access.s3.pnst_bucket_data_access import PnstBucketDataAccess
+from const.codezine import CODEZINE_FILTER_PHRASE
+from enum.code import Code
 from model.news_data import NewsData
 from model.summary_data import SummaryData
 
-# def run(content: str) -> str:
-def run(search_date_list: list[str]) -> None:
+def run(code: Code, search_date_list: list[str]) -> None:
     pnst_bucket_data_access = PnstBucketDataAccess()
     generative_ai_secrets_data_access = GenerateAiSecretsDataAccess()
     api_key = generative_ai_secrets_data_access.get_secret('API_KEY')
 
     generate_ai_data_access = GenerateAiApiDataAccess(api_key)
 
-    news_dict: dict[str, list[NewsData]] = {}
+    news_dict = get_news_dict(code=code, search_date_list=search_date_list)
 
-    for d in search_date_list:
-        news_data_list = pnst_bucket_data_access.get_news(d)
-        news_dict[d] = news_data_list
-
-    for k, v in news_dict.items():
+    for search_date, news_data_list in news_dict.items():
 
         summaries: list[SummaryData] = []
-        for n in v:
-            summary = generate_ai_data_access.summarize(n.content)
+        for news in news_data_list:
+            summary = generate_ai_data_access.summarize(news.content)
 
             summaries.append(SummaryData(
-                id=n.id,
-                title=n.title,
-                uri=f'https://codezine.jp{n.link}',
-                date=n.date,
+                code=news.code,
+                id=news.id,
+                title=news.title,
+                uri=f'https://codezine.jp{news.link}',
+                date=news.date,
                 summary=summary,
-                tag_set=n.tag_set
+                tag_set=news.tag_set
             ))
 
-        pnst_bucket_data_access.put_summary(search_date=k, data_list=summaries)
+        pnst_bucket_data_access.put_summary(code=code, search_date=search_date, data_list=summaries)
 
     pass
     # return summary
+
+def get_news_dict(code: Code, search_date_list: list[str]) -> dict[str, list[NewsData]]:
+    pnst_bucket_data_access = PnstBucketDataAccess()
+    news_dict: dict[str, list[NewsData]] = {}
+
+    for search_date in search_date_list:
+        exists_summary = pnst_bucket_data_access.exist_summary(code=code, search_date=search_date)
+
+        if exists_summary:
+            continue
+
+        news_data_list = pnst_bucket_data_access.get_news(code=code, search_date=search_date)
+        news_dict[search_date] = filter_news_by_tags(code=code, news_data_list=news_data_list)
+
+    return news_dict
+
+def filter_news_by_tags(code: Code, news_data_list: list[NewsData]) -> list[NewsData]:
+    if code == Code.CODEZINE:
+        filter_pharses = CODEZINE_FILTER_PHRASE
+
+    ret = []
+    for news in news_data_list:
+        for pharse in filter_pharses:
+            if pharse in news.tag_set:
+                ret.append(news)
+                continue
+
+            if pharse in news.title:
+                ret.append(news)
+                continue
+
+    return ret
+
 
 if __name__ == '__main__':
     search_date_list = ['2024/01/25']

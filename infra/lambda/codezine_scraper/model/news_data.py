@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from dataclasses_json import LetterCase, dataclass_json
-from enum import Enum
+from enum.code import Code
 
-
-class Code(Enum):
-    CODEZINE = 'codezine'
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass

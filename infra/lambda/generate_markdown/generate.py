@@ -1,43 +1,55 @@
 from data_access.s3.pnst_bucket_data_access import PnstBucketDataAccess
-from model.summary_data import SummaryData
+from generate_markdown.const.codezine import CODEZINE_AGGREGATE_PHRASE
+from enum.code import Code
+from model.summary_data import Code, SummaryData
 
 # def run(content: str) -> str:
-def run(search_date_list: list[str]) -> None:
+def run(code: Code, search_date_list: list[str]) -> None:
     pnst_bucket_data_access = PnstBucketDataAccess()
     summary_dict: dict[str, list[SummaryData]] = {}
 
-    for d in search_date_list:
-        summary_data_list = pnst_bucket_data_access.get_summary(d)
-        summary_dict[d] = summary_data_list
+    for search_date in search_date_list:
+        summary_data_list = pnst_bucket_data_access.get_summary(code=code, search_date=search_date)
+        summary_dict[search_date] = summary_data_list
 
-    for k, v in summary_dict.items():
-        aggregated = aggregate(v)
+    for search_date, summary_data_list in summary_dict.items():
+        aggregated = aggregate(code=code, summary_data_list=summary_data_list)
 
-        for l, sdl in aggregated:
-            
-            pnst_bucket_data_access.put_summary(search_date=k, data_list=summaries)
+        markdown = f'# {search_date}\n'
+        for lang, inner_summary_data_list in aggregated:
+
+            markdown += f'## {lang}\n'
+            for summary in inner_summary_data_list:
+                markdown += f'* {summary.title}\n'
+                markdown += f'{summary.link}\n'
+                markdown += f'{summary.content}\n'
+                markdown += '\n'
+
+            pnst_bucket_data_access.put_summary(search_date=search_date, data_list=inner_summary_data_list)
 
     pass
     # return summary
 
-def aggregate(summary_data_list: list[SummaryData]):
-    a: dict[str, list[SummaryData]] = {
-        'Python': [],
-        'Java': [],
-        'JavaScript': [],
-        'TypeScript': [],
-        'C#': [],
-        '.NET': [],
-    }
+def aggregate(code: Code, summary_data_list: list[SummaryData]):
+    aggregate_phase = []
+    if code == Code.CODEZINE:
+        aggregate_phase = CODEZINE_AGGREGATE_PHRASE
 
-    for s in summary_data_list:
-        ts = s.tag_set
+    aggreagated: dict[str, list[SummaryData]] = dict(map(lambda x: (x, []), aggregate_phase))
 
-        for l in a.keys():
-            if l in ts:
-                a[l].append(s)
+    for summary in summary_data_list:
+        tag_set = summary.tag_set
 
-    return a
+        for pharse in aggregate.keys():
+            if pharse in tag_set:
+                aggreagated[pharse].append(summary)
+                continue
+
+            if pharse in summary.title:
+                aggreagated[pharse].append(summary)
+                continue
+
+    return aggreagated
 
 if __name__ == '__main__':
     search_date_list = ['2024/01/25']

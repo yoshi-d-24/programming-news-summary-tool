@@ -8,7 +8,7 @@ class GenerateAiApiDataAccess:
         pass
 
     def summarize(self, content: str) -> str:
-        prompt = f'''以下の文章の要点をマークダウン形式の箇条書きにしてください。
+        prompt = f'''以下の文章の要点をマークダウン形式の箇条書きにしてください。箇条書きの記号には * を用いてください。
         ${content}
 '''
         data = {
