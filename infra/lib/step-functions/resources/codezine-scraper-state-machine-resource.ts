@@ -92,7 +92,7 @@ const getCodezineScraperFunctionResource = (scope: Construct): lambdaPython.Pyth
     return new lambdaPython.PythonFunction(scope, 'CodezineScraperFunction', {
         functionName: 'PNST-CODEZINE-SCRAPER',
         runtime: lambda.Runtime.PYTHON_3_12,
-        entry: path.resolve(__dirname, '../../../../lambda/codezine_scraper'),
+        entry: path.resolve(__dirname, '../../../lambda/codezine_scraper'),
         index: 'index.py',
         handler: 'handler',
         memorySize: 256,

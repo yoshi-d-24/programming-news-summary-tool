@@ -39,8 +39,8 @@ class PnstBucketDataAccess:
             
         return ret
 
-    def put_markdown(self, code: Code, search_date: str, markdown: str):
-        key = 'markdown/' + search_date + f'/{code.value}.md'
+    def put_markdown(self, code: Code, today: str, start_date: str, end_date:str, markdown: str):
+        key = f'markdown/{today}/{start_date.replace('/', '')}_{end_date.replace('/', '')}/{code.value}.md'
         s3.put_object(
             Bucket=BUCKET_NAME,
             Key=key,

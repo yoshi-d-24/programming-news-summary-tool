@@ -56,8 +56,8 @@ export const addSummarizeNewsStateMachineResource = (scope: Construct): stepfunc
 }
 
 const getSummarizeNewsFunctionResource = (scope: Construct): lambdaPython.PythonFunction => {
-     // Lambda の実行ロールを作成
-     const role = new iam.Role(scope, 'SummarizeNewsFunctionRole', {
+    // Lambda の実行ロールを作成
+    const role = new iam.Role(scope, 'SummarizeNewsFunctionRole', {
         roleName: 'PNST-SummarizeNewsFunctionRole',
         assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
         managedPolicies: [
@@ -80,7 +80,7 @@ const getSummarizeNewsFunctionResource = (scope: Construct): lambdaPython.Python
                         actions: [
                             's3:GetObject',
                             's3:PutObject',
-                            's3:ListObject',
+                            's3:ListBucket',
                         ],
                         resources: [
                             `${cdk.Fn.importValue('PNST-bucketArn')}/*`,

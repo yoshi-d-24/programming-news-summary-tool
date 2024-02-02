@@ -84,7 +84,7 @@ const getGenerateMarkdownFunctionResource = (scope: Construct): lambdaPython.Pyt
     return new lambdaPython.PythonFunction(scope, 'GenerateMarkdownFunction', {
         functionName: 'PNST-GENERATE-MARKDOWN',
         runtime: lambda.Runtime.PYTHON_3_12,
-        entry: path.resolve(__dirname, '../../../../lambda/generate_markdown'),
+        entry: path.resolve(__dirname, '../../../lambda/generate_markdown'),
         index: 'index.py',
         handler: 'handler',
         memorySize: 256,

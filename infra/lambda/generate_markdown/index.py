@@ -1,13 +1,21 @@
 import json
 from generate import run
 from aws_lambda_powertools import Logger
+from enums.code import Code
 
 logger = Logger()
 
 @logger.inject_lambda_context(log_event=True)
 def handler(event, context):
-    search_date_list: list[str] = event['search_date_list']
-    run(search_date_list=search_date_list)
+    logger.info(event)
+    code_str: str = event['code']
+    code: Code = Code(code_str)
+
+    start_date: str = event['startDate']
+    end_date: str = event['endDate']
+
+
+    run(code=code, start_date=start_date, end_date=end_date)
 
     try:
         return {

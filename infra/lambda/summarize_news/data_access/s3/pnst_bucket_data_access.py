@@ -42,8 +42,12 @@ class PnstBucketDataAccess:
         return ret
 
     def exist_summary(self, code: Code, search_date: str) -> bool:
-        result = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix='summary/' + search_date + f'/{code.value}.json')
-        return result['KeyCount'] > 0
+        key = 'summary/' + search_date + f'/{code.value}.json'
+        try:
+            s3.head_object(Bucket=BUCKET_NAME, Key=key)
+            return True
+        except:
+            return False
 
     def put_summary(self, code: Code, search_date: str, data_list: list[SummaryData]):
 
