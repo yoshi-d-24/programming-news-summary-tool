@@ -61,11 +61,11 @@ def filter_news_by_tags(code: Code, news_data_list: list[NewsData]) -> list[News
         for pharse in filter_pharses:
             if pharse in news.tag_set:
                 ret.append(news)
-                continue
+                break
 
             if pharse in news.title:
                 ret.append(news)
-                continue
+                break
 
     return ret
 
