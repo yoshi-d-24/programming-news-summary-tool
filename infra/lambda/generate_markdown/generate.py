@@ -25,7 +25,7 @@ def run(code: Code, search_date_list: list[str]) -> None:
                 markdown += f'{summary.content}\n'
                 markdown += '\n'
 
-            pnst_bucket_data_access.put_summary(search_date=search_date, data_list=inner_summary_data_list)
+        pnst_bucket_data_access.put_markdown(code=code, search_date=search_date, markdown=markdown)
 
     pass
     # return summary

@@ -3,16 +3,14 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambdaPython from '@aws-cdk/aws-lambda-python-alpha';
 import * as stepfunctions from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
-import * as events from 'aws-cdk-lib/aws-events';
-import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import { Construct } from 'constructs';
 
-export const addCodezineScraperStateMachineResource = (scope: Construct): stepfunctions.StateMachine => {
+export const addGenerateMarkdownStateMachineResource = (scope: Construct): stepfunctions.StateMachine => {
 
-    const role = new iam.Role(scope, 'CodezineScraperStateMachineRole', {
-        roleName: 'PNST-CodezineScraperStateMachineRole',
+    const role = new iam.Role(scope, 'GenerateMarkdownStateMachineRole', {
+        roleName: 'PNST-GenerateMarkdownStateMachineRole',
         assumedBy: new iam.ServicePrincipal(
             `states.${cdk.Aws.REGION}.amazonaws.com`
         ),
@@ -25,7 +23,7 @@ export const addCodezineScraperStateMachineResource = (scope: Construct): stepfu
                             'lambda:InvokeFunction',
                         ],
                         resources: [
-                            `arn:aws:lambda:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:function:PNST-CODEZINE-SCRAPER:*`,
+                            `arn:aws:lambda:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:function:PNST-GENERATE-MARKDOWN:*`,
                         ],
                     }),
                 ]
@@ -33,41 +31,34 @@ export const addCodezineScraperStateMachineResource = (scope: Construct): stepfu
         }
     });
 
-    const scraperFunction = getCodezineScraperFunctionResource(scope);
+    const generateMarkdownFunction = getGenerateMarkdownFunctionResource(scope);
 
-    const scraperTask = new tasks.LambdaInvoke(scope, 'ScraperTask', {
-        lambdaFunction: scraperFunction,
+    const generateMarkdownTask = new tasks.LambdaInvoke(scope, 'GenerateMarkdownTask', {
+        lambdaFunction: generateMarkdownFunction,
+        inputPath: '$',
         outputPath: '$.Payload',
     });
 
-    const succeed = new stepfunctions.Succeed(scope, 'ScraperSucceed', {
+    const succeed = new stepfunctions.Succeed(scope, 'GenerateMarkdownSucceed', {
         stateName: 'succeeded'
     });
 
-    const definition = scraperTask
+    const definition = generateMarkdownTask
         .next(succeed);
 
-    const stateMachine = new stepfunctions.StateMachine(scope, 'CodezineScraperStateMachine', {
-        stateMachineName: 'PNST-CODEZINE-SCRAPER',
+    const stateMachine = new stepfunctions.StateMachine(scope, 'GenerateMarkdownStateMachine', {
+        stateMachineName: 'PNST-GENERATE-MARKDOWN',
         role,
         definitionBody: stepfunctions.DefinitionBody.fromChainable(definition),
-    });
-
-    new events.Rule(scope, 'ScraperRule', {
-        ruleName: 'PNST-CODEZINE-SCRAPER-EXECUTE',
-        schedule: events.Schedule.cron({ minute: '0', hour: '0' }),
-        targets: [
-            new targets.SfnStateMachine(stateMachine),
-        ],
     });
 
     return stateMachine;
 }
 
-const getCodezineScraperFunctionResource = (scope: Construct): lambdaPython.PythonFunction => {
+const getGenerateMarkdownFunctionResource = (scope: Construct): lambdaPython.PythonFunction => {
     // Lambda の実行ロールを作成
-    const role = new iam.Role(scope, 'CodezineScraperFunctionRole', {
-        roleName: 'PNST-CodezineScraperFunctionRole',
+    const role = new iam.Role(scope, 'GenerateMarkdownFunctionRole', {
+        roleName: 'PNST-GenerateMarkdownFunctionRole',
         assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
         managedPolicies: [
             iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
@@ -78,6 +69,7 @@ const getCodezineScraperFunctionResource = (scope: Construct): lambdaPython.Pyth
                     new iam.PolicyStatement({
                         effect: iam.Effect.ALLOW,
                         actions: [
+                            's3:GetObject',
                             's3:PutObject',
                         ],
                         resources: [
@@ -89,10 +81,10 @@ const getCodezineScraperFunctionResource = (scope: Construct): lambdaPython.Pyth
         }
     });
 
-    return new lambdaPython.PythonFunction(scope, 'CodezineScraperFunction', {
-        functionName: 'PNST-CODEZINE-SCRAPER',
+    return new lambdaPython.PythonFunction(scope, 'GenerateMarkdownFunction', {
+        functionName: 'PNST-GENERATE-MARKDOWN',
         runtime: lambda.Runtime.PYTHON_3_12,
-        entry: path.resolve(__dirname, '../../../../lambda/codezine_scraper'),
+        entry: path.resolve(__dirname, '../../../../lambda/generate_markdown'),
         index: 'index.py',
         handler: 'handler',
         memorySize: 256,

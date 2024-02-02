@@ -37,3 +37,12 @@ class PnstBucketDataAccess:
             ))
             
         return ret
+
+    def put_markdown(self, code: Code, search_date: str, markdown: str):
+        key = 'markdown/' + search_date + f'/{code.value}.md'
+        s3.put_object(
+            Bucket=BUCKET_NAME,
+            Key=key,
+            Body=markdown,
+            ContentType='text/markdown;charset=utf8'
+        )

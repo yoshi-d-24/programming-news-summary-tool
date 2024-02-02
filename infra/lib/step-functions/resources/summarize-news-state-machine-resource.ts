@@ -3,16 +3,14 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambdaPython from '@aws-cdk/aws-lambda-python-alpha';
 import * as stepfunctions from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
-import * as events from 'aws-cdk-lib/aws-events';
-import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import { Construct } from 'constructs';
 
-export const addCodezineScraperStateMachineResource = (scope: Construct): stepfunctions.StateMachine => {
+export const addSummarizeNewsStateMachineResource = (scope: Construct): stepfunctions.StateMachine => {
 
-    const role = new iam.Role(scope, 'CodezineScraperStateMachineRole', {
-        roleName: 'PNST-CodezineScraperStateMachineRole',
+    const role = new iam.Role(scope, 'SummarizeNewsStateMachineRole', {
+        roleName: 'PNST-SummarizeNewsStateMachineRole',
         assumedBy: new iam.ServicePrincipal(
             `states.${cdk.Aws.REGION}.amazonaws.com`
         ),
@@ -25,7 +23,7 @@ export const addCodezineScraperStateMachineResource = (scope: Construct): stepfu
                             'lambda:InvokeFunction',
                         ],
                         resources: [
-                            `arn:aws:lambda:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:function:PNST-CODEZINE-SCRAPER:*`,
+                            `arn:aws:lambda:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:function:PNST-SUMMARIZE-NEWS:*`,
                         ],
                     }),
                 ]
@@ -33,41 +31,34 @@ export const addCodezineScraperStateMachineResource = (scope: Construct): stepfu
         }
     });
 
-    const scraperFunction = getCodezineScraperFunctionResource(scope);
+    const summarizeNewsFunction = getSummarizeNewsFunctionResource(scope);
 
-    const scraperTask = new tasks.LambdaInvoke(scope, 'ScraperTask', {
-        lambdaFunction: scraperFunction,
+    const summarizeNewsTask = new tasks.LambdaInvoke(scope, 'SummarizeNewsTask', {
+        lambdaFunction: summarizeNewsFunction,
+        inputPath: '$',
         outputPath: '$.Payload',
     });
 
-    const succeed = new stepfunctions.Succeed(scope, 'ScraperSucceed', {
+    const succeed = new stepfunctions.Succeed(scope, 'SumarizeNewsucceed', {
         stateName: 'succeeded'
     });
 
-    const definition = scraperTask
+    const definition = summarizeNewsTask
         .next(succeed);
 
-    const stateMachine = new stepfunctions.StateMachine(scope, 'CodezineScraperStateMachine', {
-        stateMachineName: 'PNST-CODEZINE-SCRAPER',
+    const stateMachine = new stepfunctions.StateMachine(scope, 'SummarizeNewsStateMachine', {
+        stateMachineName: 'PNST-SUMMARIZE-NEWS',
         role,
         definitionBody: stepfunctions.DefinitionBody.fromChainable(definition),
-    });
-
-    new events.Rule(scope, 'ScraperRule', {
-        ruleName: 'PNST-CODEZINE-SCRAPER-EXECUTE',
-        schedule: events.Schedule.cron({ minute: '0', hour: '0' }),
-        targets: [
-            new targets.SfnStateMachine(stateMachine),
-        ],
     });
 
     return stateMachine;
 }
 
-const getCodezineScraperFunctionResource = (scope: Construct): lambdaPython.PythonFunction => {
-    // Lambda の実行ロールを作成
-    const role = new iam.Role(scope, 'CodezineScraperFunctionRole', {
-        roleName: 'PNST-CodezineScraperFunctionRole',
+const getSummarizeNewsFunctionResource = (scope: Construct): lambdaPython.PythonFunction => {
+     // Lambda の実行ロールを作成
+     const role = new iam.Role(scope, 'SummarizeNewsFunctionRole', {
+        roleName: 'PNST-SummarizeNewsFunctionRole',
         assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
         managedPolicies: [
             iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
@@ -78,7 +69,18 @@ const getCodezineScraperFunctionResource = (scope: Construct): lambdaPython.Pyth
                     new iam.PolicyStatement({
                         effect: iam.Effect.ALLOW,
                         actions: [
+                            'secretsmanager:GetSecretValue',
+                        ],
+                        resources: [
+                            '*'
+                        ],
+                    }),
+                    new iam.PolicyStatement({
+                        effect: iam.Effect.ALLOW,
+                        actions: [
+                            's3:GetObject',
                             's3:PutObject',
+                            's3:ListObject',
                         ],
                         resources: [
                             `${cdk.Fn.importValue('PNST-bucketArn')}/*`,
@@ -89,10 +91,10 @@ const getCodezineScraperFunctionResource = (scope: Construct): lambdaPython.Pyth
         }
     });
 
-    return new lambdaPython.PythonFunction(scope, 'CodezineScraperFunction', {
-        functionName: 'PNST-CODEZINE-SCRAPER',
+    return new lambdaPython.PythonFunction(scope, 'SummarizeNewsFunction', {
+        functionName: 'PNST-SUMMARIZE-NEWS',
         runtime: lambda.Runtime.PYTHON_3_12,
-        entry: path.resolve(__dirname, '../../../../lambda/codezine_scraper'),
+        entry: path.resolve(__dirname, '../../../lambda/summarize_news'),
         index: 'index.py',
         handler: 'handler',
         memorySize: 256,
