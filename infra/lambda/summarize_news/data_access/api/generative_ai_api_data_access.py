@@ -8,7 +8,7 @@ class GenerateAiApiDataAccess:
         pass
 
     def summarize(self, content: str) -> str:
-        prompt = f'''以下の文章の要点をまとめ、箇条書きにしてください。
+        prompt = f'''以下の文章の要点をマークダウン形式の箇条書きにしてください。
         ${content}
 '''
         data = {
@@ -28,7 +28,6 @@ class GenerateAiApiDataAccess:
             'Content-Type': 'application/json;charset=UTF-8',
         }
 
-        print(data)
         # POSTリクエストの送信
         response = requests.post(self.url, data=json.dumps(data), headers=headers)
         res_dict = json.loads(response.text)

@@ -1,5 +1,5 @@
 import json
-from summarize import run
+from generate import run
 from aws_lambda_powertools import Logger
 
 logger = Logger()
