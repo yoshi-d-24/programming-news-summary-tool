@@ -95,11 +95,11 @@ const getCodezineScraperFunctionResource = (scope: Construct): lambdaPython.Pyth
         entry: path.resolve(__dirname, '../../../lambda/codezine_scraper'),
         index: 'index.py',
         handler: 'handler',
-        memorySize: 256,
+        memorySize: 512,
         architecture: lambda.Architecture.ARM_64,
-        timeout: cdk.Duration.seconds(60),
+        timeout: cdk.Duration.minutes(10),
         logFormat: lambda.LogFormat.JSON,
-        applicationLogLevel: lambda.ApplicationLogLevel.DEBUG,
+        applicationLogLevel: lambda.ApplicationLogLevel.INFO,
         role,
     })
 }

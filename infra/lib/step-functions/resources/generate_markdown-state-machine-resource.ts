@@ -89,9 +89,9 @@ const getGenerateMarkdownFunctionResource = (scope: Construct): lambdaPython.Pyt
         handler: 'handler',
         memorySize: 256,
         architecture: lambda.Architecture.ARM_64,
-        timeout: cdk.Duration.seconds(60),
+        timeout: cdk.Duration.minutes(5),
         logFormat: lambda.LogFormat.JSON,
-        applicationLogLevel: lambda.ApplicationLogLevel.DEBUG,
+        applicationLogLevel: lambda.ApplicationLogLevel.INFO,
         role,
     })
 }

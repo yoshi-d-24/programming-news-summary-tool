@@ -97,11 +97,11 @@ const getSummarizeNewsFunctionResource = (scope: Construct): lambdaPython.Python
         entry: path.resolve(__dirname, '../../../lambda/summarize_news'),
         index: 'index.py',
         handler: 'handler',
-        memorySize: 256,
+        memorySize: 512,
         architecture: lambda.Architecture.ARM_64,
-        timeout: cdk.Duration.seconds(60),
+        timeout: cdk.Duration.minutes(15),
         logFormat: lambda.LogFormat.JSON,
-        applicationLogLevel: lambda.ApplicationLogLevel.DEBUG,
+        applicationLogLevel: lambda.ApplicationLogLevel.INFO,
         role,
     })
 }

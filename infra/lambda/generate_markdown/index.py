@@ -7,13 +7,11 @@ logger = Logger()
 
 @logger.inject_lambda_context(log_event=True)
 def handler(event, context):
-    logger.info(event)
     code_str: str = event['code']
     code: Code = Code(code_str)
 
     start_date: str = event['startDate']
     end_date: str = event['endDate']
-
 
     run(code=code, start_date=start_date, end_date=end_date)
 
