@@ -1,6 +1,6 @@
 import boto3
-from enum.code import Code
-from model.submmary_data import SummaryData
+from enums.code import Code
+from model.summary_data import SummaryData
 import json
 
 BUCKET_NAME = 'pnst-bucket'
@@ -28,6 +28,7 @@ class PnstBucketDataAccess:
         ret: list[SummaryData] = []
         for s in summary:
             ret.append(SummaryData(
+                code=s['code'],
                 id=s['id'],
                 title=s['title'],
                 uri=s['uri'],

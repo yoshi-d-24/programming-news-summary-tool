@@ -1,6 +1,6 @@
 from data_access.s3.pnst_bucket_data_access import PnstBucketDataAccess
-from generate_markdown.const.codezine import CODEZINE_AGGREGATE_PHRASE
-from enum.code import Code
+from const.codezine import CODEZINE_AGGREGATE_PHRASE
+from enums.code import Code
 from model.summary_data import Code, SummaryData
 
 # def run(content: str) -> str:
@@ -16,14 +16,17 @@ def run(code: Code, search_date_list: list[str]) -> None:
         aggregated = aggregate(code=code, summary_data_list=summary_data_list)
 
         markdown = f'# {search_date}\n'
-        for lang, inner_summary_data_list in aggregated:
+        for lang, inner_summary_data_list in aggregated.items():
 
             markdown += f'## {lang}\n'
-            for summary in inner_summary_data_list:
-                markdown += f'* {summary.title}\n'
-                markdown += f'{summary.link}\n'
-                markdown += f'{summary.content}\n'
+            for summary_data in inner_summary_data_list:
+                # add indent
+                summary = '\n'.join(list(map(lambda s: f'  {s}' , summary_data.summary.split('\n'))))
+                markdown += f'* [{summary_data.title}]({summary_data.uri})\n'
+                markdown += f'{summary}\n'
                 markdown += '\n'
+            
+            markdown += '\n'
 
         pnst_bucket_data_access.put_markdown(code=code, search_date=search_date, markdown=markdown)
 
@@ -35,25 +38,27 @@ def aggregate(code: Code, summary_data_list: list[SummaryData]):
     if code == Code.CODEZINE:
         aggregate_phase = CODEZINE_AGGREGATE_PHRASE
 
-    aggreagated: dict[str, list[SummaryData]] = dict(map(lambda x: (x, []), aggregate_phase))
+    aggregated: dict[str, list[SummaryData]] = dict(map(lambda x: (x, []), aggregate_phase))
+    aggregated['Others'] = []
 
     for summary in summary_data_list:
         tag_set = summary.tag_set
 
-        for pharse in aggregate.keys():
+        added = False
+        for pharse in aggregated.keys():
             if pharse in tag_set:
-                aggreagated[pharse].append(summary)
+                aggregated[pharse].append(summary)
+                added = True
                 continue
 
-            if pharse in summary.title:
-                aggreagated[pharse].append(summary)
-                continue
+        if added == False:
+            aggregated['Others'].push(summary)
 
-    return aggreagated
+    return aggregated
 
 if __name__ == '__main__':
     search_date_list = ['2024/01/25']
-    run(search_date_list=search_date_list)
+    run(code=Code.CODEZINE, search_date_list=search_date_list)
     # content = '''
 # 　私が小学校にあがる前まで住んでいた家の風呂は、薪で炊いていたことを覚えている。
 # 　風呂の外に焚き口があって、そこに薪を入れて火を焚き、お湯をわかしていた。なにしろ幼いころのことなので詳細は覚えていないが、ガスや、もちろん現在のように自動の湯沸かし器で焚いていたのではなかった。

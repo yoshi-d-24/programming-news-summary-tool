@@ -2,7 +2,7 @@ from data_access.api.generative_ai_api_data_access import GenerateAiApiDataAcces
 from data_access.secrets_manager.generative_ai_secrets_data_access import GenerateAiSecretsDataAccess
 from data_access.s3.pnst_bucket_data_access import PnstBucketDataAccess
 from const.codezine import CODEZINE_FILTER_PHRASE
-from enum.code import Code
+from enums.code import Code
 from model.news_data import NewsData
 from model.summary_data import SummaryData
 
@@ -44,6 +44,7 @@ def get_news_dict(code: Code, search_date_list: list[str]) -> dict[str, list[New
         exists_summary = pnst_bucket_data_access.exist_summary(code=code, search_date=search_date)
 
         if exists_summary:
+            print(f'summary already exists: date={search_date}')
             continue
 
         news_data_list = pnst_bucket_data_access.get_news(code=code, search_date=search_date)
@@ -71,7 +72,7 @@ def filter_news_by_tags(code: Code, news_data_list: list[NewsData]) -> list[News
 
 if __name__ == '__main__':
     search_date_list = ['2024/01/25']
-    run(search_date_list=search_date_list)
+    run(code=Code.CODEZINE, search_date_list=search_date_list)
     # content = '''
 # 　私が小学校にあがる前まで住んでいた家の風呂は、薪で炊いていたことを覚えている。
 # 　風呂の外に焚き口があって、そこに薪を入れて火を焚き、お湯をわかしていた。なにしろ幼いころのことなので詳細は覚えていないが、ガスや、もちろん現在のように自動の湯沸かし器で焚いていたのではなかった。

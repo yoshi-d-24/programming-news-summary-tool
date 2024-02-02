@@ -2,7 +2,7 @@ import boto3
 from model.news_data import Code, NewsData
 from model.summary_data import SummaryData
 import json
-from enum.code import Code
+from enums.code import Code
 
 
 BUCKET_NAME = 'pnst-bucket'
@@ -43,7 +43,7 @@ class PnstBucketDataAccess:
 
     def exist_summary(self, code: Code, search_date: str) -> bool:
         result = s3.list_objects_v2(Bucket=BUCKET_NAME, Prefix='summary/' + search_date + f'/{code.value}.json')
-        result.KeyCount > 0
+        return result['KeyCount'] > 0
 
     def put_summary(self, code: Code, search_date: str, data_list: list[SummaryData]):
 

@@ -1,5 +1,5 @@
 import json
-from enum.code import Code
+from enums.code import Code
 from summarize import run
 from aws_lambda_powertools import Logger
 
