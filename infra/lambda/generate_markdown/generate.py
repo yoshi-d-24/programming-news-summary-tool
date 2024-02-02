@@ -62,7 +62,7 @@ def aggregate_day_summaries(code: Code, summary_data_list: list[SummaryData]):
             if pharse in tag_set:
                 aggregated[pharse].append(summary)
                 added = True
-                continue
+                break
 
         if added == False:
             aggregated['Others'].push(summary)
