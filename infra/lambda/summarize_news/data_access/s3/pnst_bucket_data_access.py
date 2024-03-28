@@ -17,29 +17,32 @@ class PnstBucketDataAccess:
 
         key = 'news/' + search_date + f'/{code.value}.json'
 
-        res = s3.get_object(
-            Bucket=BUCKET_NAME,
-            Key=key,
-        )
+        try:    
+            res = s3.get_object(
+                Bucket=BUCKET_NAME,
+                Key=key,
+            )
 
-        body = res['Body'].read()
-        decoded = json.loads(body.decode('utf-8'))
+            body = res['Body'].read()
+            decoded = json.loads(body.decode('utf-8'))
 
-        news = decoded['news']
+            news = decoded['news']
 
-        ret: list[NewsData] = []
-        for n in news:
-            ret.append(NewsData(
-                code=n['code'],
-                id=n['id'],
-                title=n['title'],
-                link=n['link'],
-                date=n['date'],
-                content=n['content'],
-                tag_set=n['tagSet']
-            ))
-            
-        return ret
+            ret: list[NewsData] = []
+            for n in news:
+                ret.append(NewsData(
+                    code=n['code'],
+                    id=n['id'],
+                    title=n['title'],
+                    link=n['link'],
+                    date=n['date'],
+                    content=n['content'],
+                    tag_set=n['tagSet']
+                ))
+                
+            return ret
+        except:
+            return []
 
     def exist_summary(self, code: Code, search_date: str) -> bool:
         key = 'summary/' + search_date + f'/{code.value}.json'

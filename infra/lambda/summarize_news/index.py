@@ -16,8 +16,8 @@ def handler(event, context):
 
     search_date_list: list[str] = get_dates_in_range(start_date=start_date, end_date=end_date)
 
-    if (len(search_date_list) > 7):
-        raise Exception("too long")
+    # if (len(search_date_list) > 7):
+        # raise Exception("too long")
 
     logger.info(event)
 

@@ -65,7 +65,7 @@ def aggregate_day_summaries(code: Code, summary_data_list: list[SummaryData]):
                 break
 
         if added == False:
-            aggregated['Others'].push(summary)
+            aggregated['Others'].append(summary)
 
     return aggregated
 
