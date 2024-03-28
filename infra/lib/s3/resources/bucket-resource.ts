@@ -12,7 +12,7 @@ export const addBucketResource = (scope: Construct): s3.Bucket => {
             {
                 id: 'expiration',
                 enabled: true,
-                expiration: cdk.Duration.days(30),
+                expiration: cdk.Duration.days(180),
             },
             {
                 id: 'abortIncompleteMultipart',
